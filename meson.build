@@ -1,4 +1,6 @@
-project('jwm', 'c')
+project('jwm', 'c', 'cpp',
+        default_options: ['c_std=c11', 'cpp_std=c++11'])
+
 cc = meson.get_compiler('c')
 math = cc.find_library('m', required: false)
 ft2 = dependency('freetype2')
@@ -9,7 +11,7 @@ fontconfig = dependency('fontconfig')
 src = [
     'src/drw.c',
     'src/duktape.c',
-    'src/jwm.c',
+    'src/jwm.cpp',
     'src/util.c'
 ]
 

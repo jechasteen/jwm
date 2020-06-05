@@ -23,7 +23,6 @@ extern "C" {
 
 #include "drw.h"
 #include "util.h"
-#include "duktape.h"
 
 }
 

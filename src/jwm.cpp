@@ -23,10 +23,12 @@
 
 
 #include "jwm.h"
+#include "js.h"
 
 int
 main(int argc, char *argv[])
 {
+	JS::Context ctx;
 	if (argc == 2 && !strcmp("-v", argv[1]))
 		die("jwm v0");
 	else if (argc != 1)

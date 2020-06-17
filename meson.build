@@ -7,12 +7,22 @@ ft2 = dependency('freetype2')
 X11 = dependency('X11')
 xft = dependency('xft')
 fontconfig = dependency('fontconfig')
+webkit = dependency('webkit2gtk-4.0')
 
 src = [
     'src/drw.c',
-    'src/duktape.c',
     'src/jwm.cpp',
     'src/util.c'
 ]
 
-executable('jwm', src, dependencies: [X11, xft, math, ft2, fontconfig])
+executable('jwm',
+    src,
+    dependencies: [
+        X11, 
+        xft, 
+        math, 
+        ft2, 
+        fontconfig,
+        webkit,
+    ]
+)

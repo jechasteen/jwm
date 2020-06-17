@@ -1,84 +1,72 @@
-#include <algorithm>
 #include <iostream>
-#include <string>
-#include <vector>
+#include <fstream>
 
 extern "C" {
-#include "duktape.h"
-}
 
-static std::vector<std::string> splitString(std::string str, const char c) {
-    std::vector<std::string> res;
-    std::string s = "";
-    for(int i = 0; i < str.length(); i++) {
-        if (str[i] == c) {
-            res.push_back(s);
-            std::cout << s;
-            s = "";
-        } else {
-            s += str[i];
-        }
-    }
-    res.push_back(s);
-    return res;
+#include <JavaScriptCore/JavaScript.h>
+#include <jsc/jsc.h>
+
 }
 
 namespace JS {
 
+struct Value : public JSCValue {
+    Value(JSCValue *val) : m_raw(*val) {}
+
+    JSCValue *raw() const { return &m_raw; }
+
+    std::string toJSON() {
+        char *json = jsc_value_to_json(&m_raw, 4);
+        std::string json_str = json;
+        if (json_str.empty()) {
+            return "{}";
+        } else {
+            return json;
+        }
+        return "{}";
+    }
+private:
+    JSCValue &m_raw;
+};
+
 class Context {
 public:
-    Context() { setup(); }
-    Context(const char *filename) : m_filename(filename) { setup(); }
-    ~Context() { duk_destroy_heap(m_ctx); }
-
-    // Get the contents of a JS global object key
-    // keys in the format `root.middle.end`
-    std::string getStringFromGlobalObject(std::string keys) {
-        std::vector<std::string> vKeys = splitString(keys, '.');
-        duk_push_global_object(m_ctx);
-        std::for_each(vKeys.cbegin(), vKeys.cend(), [this](std::string key) {
-            std::cout << key << std::endl;
-            duk_push_string(m_ctx, key.c_str());
-            duk_get_prop(m_ctx, -2);
-        });
-        std::string res = duk_safe_to_string(m_ctx, -1);
-        duk_pop_n(m_ctx, vKeys.size() + 1);
-        return res;
+    Context() : m_ctx(jsc_context_new()) {}
+    
+    Value evalFile(const std::string path) {
+        std::ifstream file(path);
+        std::string js;
+        if (file.is_open()) {
+            std::string line;
+            while(getline(file, line)) {
+                js += line;
+            }
+        }
+        file.close();
+        return eval(js);
+    }
+    Value eval(const std::string js) {
+        if (!m_ctx) return Value(jsc_value_new_undefined(m_ctx));
+        return Value(jsc_context_evaluate(m_ctx, js.c_str(), js.length()));
+    }
+    Value global() {
+        if (!m_ctx) return Value(jsc_value_new_undefined(m_ctx));
+        else return Value(jsc_context_get_global_object(m_ctx));
+    }
+    Value getValue(const std::string key) {
+        if (!m_ctx) return Value(jsc_value_new_undefined(m_ctx));
+        else return Value(jsc_context_get_value(m_ctx, key.c_str()));
+    }
+    void setValue(const std::string key, Value *value) {
+        jsc_context_set_value(m_ctx, key.c_str(), value);
+    }
+    // name: the global varable name, prop: the property to 
+    Value getPropertyFromGlobal(std::string name, std::string prop) {
+        return Value(jsc_value_object_get_property(getValue(name).raw(), prop.c_str()));
     }
 
 private:
-    duk_context *m_ctx;
-    const char *m_filename = "/home/jechasteen/Repos/jwm/src/test.js";
-
-private:
-    void setup() {
-        m_ctx = duk_create_heap_default();
-        if (!m_ctx) {
-            std::cout << "Failed to create JS heap.\n";
-            throw;
-        }
-        push_file_as_string(m_ctx, m_filename);
-        if (duk_peval(m_ctx) != 0) {
-            std::cout << "Error: " << duk_safe_to_string(m_ctx, -1) << std::endl;
-            throw;
-        }
-        duk_pop(m_ctx);
-        std::cout << getStringFromGlobalObject("appearance.color") << std::endl;
-    }
-    void push_file_as_string(duk_context *ctx, const char *filename) {
-        FILE *f;
-        size_t len;
-        char buf[16384];
-
-        f = fopen(filename, "rb");
-        if (f) {
-            len = fread((void *) buf, 1, sizeof(buf), f);
-            fclose(f);
-            duk_push_lstring(ctx, (const char *) buf, (duk_size_t) len);
-        } else {
-            duk_push_undefined(ctx);
-        }
-    }
+    JSCContext *m_ctx;
 };
 
 }

@@ -32,12 +32,16 @@ var tags = ["1", "2", "3", "4", "5", "6", "7", "8", "9"];
 
 // TODO: Rules
 
-var mfact = 0.55;   // factor of master area size 0.05-0.95
-var nmaster = 1;    // number of clients in master area
-var honorResizeHints = true; // respect hints during tiled resize
-
 // TODO: Layouts
 
 // TODO: Key bindings
 
 // TODO: Button definitions
+
+var config = {
+    appearance: appearance,
+    tags: tags,
+    mfact: 0.55,
+    nmaster: 1,
+    honorResizeHints: true
+}

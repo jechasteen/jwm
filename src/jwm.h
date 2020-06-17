@@ -1,3 +1,4 @@
+#include <iostream>
 #include <errno.h>
 #include <locale.h>
 #include <signal.h>
@@ -25,6 +26,8 @@ extern "C" {
 #include "util.h"
 
 }
+
+#include "js.h"
 
 /* macros */
 #define BUTTONMASK              (ButtonPressMask|ButtonReleaseMask)
@@ -225,6 +228,7 @@ static int bh, blw = 0;      /* bar geometry */
 static int lrpad;            /* sum of left and right padding for text */
 static int (*xerrorxlib)(Display *, XErrorEvent *);
 static unsigned int numlockmask = 0;
+static JS::Context js_context;
 static void (*handler[LASTEvent]) (XEvent *) = {
 	NULL,			// Reserved
 	NULL,			// Reserved
@@ -1489,6 +1493,8 @@ void
 run(void)
 {
 	XEvent ev;
+	js_context.evalFile("/home/jechasteen/Repos/jwm/src/rc.js");
+	std::cout << "CONFIG " << js_context.getPropertyFromGlobal("config", "mfact").toJSON() << std::endl;
 	/* main event loop */
 	XSync(dpy, False);
 	while (running && !XNextEvent(dpy, &ev))

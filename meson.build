@@ -24,5 +24,9 @@ executable('jwm',
         ft2, 
         fontconfig,
         webkit,
-    ]
+    ],
+    install: true,
+    install_dir: '/usr/bin'
 )
+
+install_data('jwm.desktop', install_dir: '/usr/share/xsessions')

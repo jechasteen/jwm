@@ -1,1 +1,8 @@
 build/**
+*.cflags
+*.config
+*.creator
+*.creator.user
+*.cxxflags
+*.files
+*.includes

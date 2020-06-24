@@ -42,6 +42,7 @@ main(int argc, char *argv[])
 		die("pledge");
 #endif /* __OpenBSD__ */
 	scan();
+    runautostart();
 	run();
 	cleanup();
 	XCloseDisplay(dpy);

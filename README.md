@@ -35,3 +35,13 @@ in `jwm.h`.
 
 If you're interested in applying dwm patches, good luck. Sorry, I haven't even tried yet.
 If you would like a patch applied, submit a pull request and I'll consider adding the patch.
+
+## Testing
+
+Please note: the testing script requires the `xorg-server-xephyr` package.
+
+`./run.sh` will open a Xephyr window and then start `build/jwm`.
+
+`./run.sh debug` will start gdb instead.
+Enter `run` to begin testing.
+If something fails, enter `backtrace` to get more info.
